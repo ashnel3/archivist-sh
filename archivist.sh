@@ -90,8 +90,7 @@ archivist_add_task() {
     archivist_echo 'archivist_update() {'                                   >> "$taskpath"
     archivist_echo "    local checksum=\"$(archivist_get_checksum)\""       >> "$taskpath"
     archivist_echo '    read -ra logged_update -d '\'\'' <<< "$(archivist_parse_log $taskname.log update)"' >> "$taskpath"
-    archivist_echo '    archivist_package "$taskname-$timestamp"'           >> "$taskpath"
-    archivist_echo '    local update_hash=($($checksum $taskname-$timestamp.tar.gz))' >> "$taskpath"
+    archivist_echo '    local update_hash="$(archivist_package $checksum $taskname-$timestamp)"' >> "$taskpath"
     archivist_echo '    if [[ ! "$update_hash" == "${logged_update[2]}" ]]; then' >> "$taskpath"
     archivist_echo '        archivist_echo "[update]: $(date +%s) $update_hash" >> "$taskname.log"' >> "$taskpath"
     archivist_echo '        archivist_echo "[check]: $(date +%s)" >> "$taskname.log"' >> "$taskpath"
@@ -105,9 +104,9 @@ archivist_add_task() {
 
     archivist_echo '# Task main'                                            >> "$taskpath"
     archivist_echo 'if [[ ! "${task_opts[enabled]}" == "false" ]]; then'    >> "$taskpath"
-    archivist_echo '    archivist_download \'                        >> "$taskpath"
-    archivist_echo '        && before \'                        >> "$taskpath"
-    archivist_echo '        && archivist_update \'                          >> "$taskpath"
+    archivist_echo '    archivist_download \'                               >> "$taskpath"
+    archivist_echo '        && before \'                                    >> "$taskpath"
+    archivist_echo '        && archivist_update "$@" \'                     >> "$taskpath"
     archivist_echo '        && (archivist_release && after true && cleanup) || after false && cleanup' >> "$taskpath"
     archivist_echo 'fi'                                                     >> "$taskpath"
 
@@ -146,7 +145,7 @@ archivist_config_task() {
     archivist_merge_opts
     archivist_echo '#!/usr/bin/env bash'                       >> "$config"
     archivist_echo ''                                          >> "$config"
-    archivist_echo "taskname=\"${opts[task]}\""               >> "$config"
+    archivist_echo "taskname=\"${opts[task]}\""                >> "$config"
     archivist_echo ''                                          >> "$config"
     archivist_echo 'declare -A task_opts'                      >> "$config"
     archivist_echo "task_opts[enabled]=\"${opts[enabled]}\""   >> "$config"

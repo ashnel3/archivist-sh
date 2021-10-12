@@ -12,6 +12,8 @@ archivist_error() {
     >&2 archivist_echo "$@"
 }
 
+# TODO: Can this cope w/ larger files?
+
 archivist_parse_log() {
     if [[ ! -f "$1" ]]; then
         return 0
@@ -49,19 +51,25 @@ archivist_diff() {
     return 0
 }
 
+# TODO: Loop over files, package small ones & shasum them all
+
 archivist_package() {
-    if [[ -d $1 ]]; then
-        (cd $1 && tar -czf "../$1.tar.gz" *)
+    if [[ -d $2 ]]; then
+        (cd $2 && zip -D -X -q -r ../$2.zip .)
+
+        local hash=($($1 $2.zip))
+        archivist_echo "$hash"
     else
-        archivist_error "Nothing downloaded..."
+        archivist_error "Error: Nothing downloaded..."
+        exit 1
     fi
 }
 
 archivist_release() {
     local releasedir="../../release/$taskname"
 
-    mkdir -p "$releasedir" \
-        && mv *.tar.gz "$releasedir"
+    mkdir -p "$releasedir" 2>/dev/null \
+        && mv *.zip "$releasedir" 2>/dev/null
 }
 
 after() {
@@ -73,5 +81,5 @@ before() {
 }
 
 cleanup() {
-    rm -rf $taskname-$timestamp.tar.gz $taskname-$timestamp
+    rm -rf $taskname-$timestamp.zip $taskname-$timestamp
 }
