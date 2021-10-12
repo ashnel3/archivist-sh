@@ -20,6 +20,7 @@ archivist_start_tasks() {
             continue
         fi
 
+        # Load task opts
         . $1.config
 
         local run_time="$(date +%s)"
@@ -32,8 +33,7 @@ archivist_start_tasks() {
 
         if [[ "${task_opts[enabled]}" == "true" ]]; then
             if [[ "$force" == "true" ]] || [[ "$seconds_since" -gt "$seconds_interval" ]]; then
-                # TODO: Pass arguments to task
-                find $1 -type f -name "task.sh" -exec sh -c {} \;
+                bash -c "$1task.sh $task_count $#"
                 ((task_count=task_count+1))
             fi
         fi
