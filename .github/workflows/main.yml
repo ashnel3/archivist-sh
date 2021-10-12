@@ -1,0 +1,22 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ '*' ]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install requirements
+        run: |
+            git clone https://github.com/bats-core/bats-core.git
+            (cd bats-core && sudo ./install.sh /usr/local)
+
+      - name: Test
+        run: make test

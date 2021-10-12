@@ -1,0 +1,8 @@
+tasks/*/
+release/
+\[*\]*
+
+*.log
+*.txt
+*.sha
+*.tar.gz
