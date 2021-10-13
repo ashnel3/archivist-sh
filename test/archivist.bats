@@ -69,13 +69,13 @@
 }
 
 @test "Set should configure task & output correctly" {
-    ./archivist add -t=test_set -a="xml,json" https://example.com > /dev/null
+    ./archivist add -t=test_set -a="xml,json" -i=24 https://example.com > /dev/null
     run ./archivist set -t=test_set -a="xml,json"
     readarray -t clines < tasks/test_set/.config
 
     [ "$status" -eq 0 ]
     [ "$(printf ${clines[6]})" == "task_opts[accepts]=\"xml,json\"" ]
-    [ "$(printf ${clines[9]})" == "task_opts[interval]=\"3\"" ]
+    [ "$(printf ${clines[9]})" == "task_opts[interval]=\"24\"" ]
 }
 
 @test "Set should disable task" {

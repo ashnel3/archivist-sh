@@ -140,7 +140,7 @@ archivist_config_task() {
         opts[enabled]="true"
     fi
     if [[ -z "${opts[interval]}" ]]; then
-        opts[interval]="3"
+        opts[interval]="24"
     fi
 
     archivist_merge_opts
