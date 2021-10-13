@@ -73,10 +73,12 @@ archivist_release() {
 }
 
 after() {
+    [[ -x "./after.sh" ]] && ./after.sh "$@" 2>/dev/null
     return 0
 }
 
 before() {
+    [[ -x "./before.sh" ]] && ./before.sh "$@" 2>/dev/null
     return 0
 }
 
