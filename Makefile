@@ -11,11 +11,6 @@ clean-logs:
 
 test:
 	@rm -rf tasks/test_*
-	@bats --jobs 4 --tap test
-	@rm -rf tasks/test_* releases/test_*
-
-test-sync:
-	@rm -rf tasks/test_*
 	@bats --tap test
 	@rm -rf tasks/test_* releases/test_*
 
