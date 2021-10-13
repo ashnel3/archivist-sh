@@ -71,7 +71,7 @@ archivist_add_task() {
     archivist_echo ''                                                       >> "$taskpath"
     archivist_echo 'set -e'                                                 >> "$taskpath"
     archivist_echo ''                                                       >> "$taskpath"
-    archivist_echo 'timestamp="$(date +%Y-%m-%d)"'                          >> "$taskpath"
+    archivist_echo 'timestamp="$(date +%Y-%m-%d-%Hh-%Mm)"'                  >> "$taskpath"
     archivist_echo ''                                                       >> "$taskpath"
     archivist_echo '# Ensure working directory'                             >> "$taskpath"
     archivist_echo 'cd "$(dirname "$0")"'                                   >> "$taskpath"
@@ -83,8 +83,6 @@ archivist_add_task() {
     archivist_echo '# Load options'                                         >> "$taskpath"
     archivist_echo '. .config'                                              >> "$taskpath"
     archivist_echo ''                                                       >> "$taskpath"
-
-    # TODO: Only package files under a certain size
 
     # Write update
     archivist_echo 'archivist_update() {'                                   >> "$taskpath"
