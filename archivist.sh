@@ -105,9 +105,10 @@ archivist_add_task() {
     archivist_echo '# Task main'                                            >> "$taskpath"
     archivist_echo 'if [[ ! "${task_opts[enabled]}" == "false" ]]; then'    >> "$taskpath"
     archivist_echo '    archivist_download \'                               >> "$taskpath"
-    archivist_echo '        && before \'                                    >> "$taskpath"
+    archivist_echo '        && before "$@" \'                               >> "$taskpath"
     archivist_echo '        && archivist_update "$@" \'                     >> "$taskpath"
-    archivist_echo '        && (archivist_release && after true && cleanup) || after false && cleanup' >> "$taskpath"
+    archivist_echo '        && (archivist_release && after true "$@" && cleanup) \' >> "$taskpath"
+    archivist_echo '        || after false "$@" && cleanup'                 >> "$taskpath"
     archivist_echo 'fi'                                                     >> "$taskpath"
 
     archivist_config_task
