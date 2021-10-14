@@ -22,7 +22,7 @@ Easily test your user-scripts, page types, or web-extensions.
 - [ ] Windows installer & task scheduling
 
 ### Requirements:
-Requirements: make, diff, wget, shasum, zip & bats-core optionally for testing
+Requirements: make, diff, wget, shasum, tar & bats-core optionally for testing
 
 Targeting: Bash 3.2.57+
 

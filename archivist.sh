@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-VERSION="0.2.0a"
+VERSION="0.3.0a"
 USAGE="$(cat << EOF
 usage: archivist [add|set|remove|run] [options]
 description: archivist.sh - Backup & track websites over time.
@@ -14,7 +14,7 @@ description: archivist.sh - Backup & track websites over time.
     -x, --exclude  - Configure excluded paths
     -i, --interval - Configure task run interval in hours
     -r, --reject   - Configure rejected files
-    --help         - Display this message
+    --help, -h     - Display this message
     -v, --version  - Display version
 
 EOF
@@ -71,7 +71,7 @@ archivist_add_task() {
     archivist_echo ''                                                       >> "$taskpath"
     archivist_echo 'set -e'                                                 >> "$taskpath"
     archivist_echo ''                                                       >> "$taskpath"
-    archivist_echo 'timestamp="$(date +%Y-%m-%d)"'                          >> "$taskpath"
+    archivist_echo 'timestamp="$(date +%Y-%m-%d-%Hh-%Mm)"'                  >> "$taskpath"
     archivist_echo ''                                                       >> "$taskpath"
     archivist_echo '# Ensure working directory'                             >> "$taskpath"
     archivist_echo 'cd "$(dirname "$0")"'                                   >> "$taskpath"
@@ -84,15 +84,13 @@ archivist_add_task() {
     archivist_echo '. .config'                                              >> "$taskpath"
     archivist_echo ''                                                       >> "$taskpath"
 
-    # TODO: Only package files under a certain size
-
     # Write update
     archivist_echo 'archivist_update() {'                                   >> "$taskpath"
     archivist_echo "    local checksum=\"$(archivist_get_checksum)\""       >> "$taskpath"
     archivist_echo '    read -ra logged_update -d '\'\'' <<< "$(archivist_parse_log $taskname.log update)"' >> "$taskpath"
-    archivist_echo '    local update_hash="$(archivist_package $checksum $taskname-$timestamp)"' >> "$taskpath"
-    archivist_echo '    if [[ ! "$update_hash" == "${logged_update[2]}" ]]; then' >> "$taskpath"
-    archivist_echo '        archivist_echo "[update]: $(date +%s) $update_hash" >> "$taskname.log"' >> "$taskpath"
+    archivist_echo '    local update_hashes="$(archivist_package $checksum $taskname-$timestamp)"' >> "$taskpath"
+    archivist_echo '    if [[ ! "$update_hashes" == "${logged_update[@]:2}" ]]; then' >> "$taskpath"
+    archivist_echo '        archivist_echo "[update]: $(date +%s) $update_hashes" >> "$taskname.log"' >> "$taskpath"
     archivist_echo '        archivist_echo "[check]: $(date +%s)" >> "$taskname.log"' >> "$taskpath"
     archivist_echo '        return 0'                                       >> "$taskpath"
     archivist_echo '    else'                                               >> "$taskpath"
@@ -187,7 +185,7 @@ archivist_process_params() {
             -r=*|--reject=* ) opts[rejects]=${1#*=} ;;
             -i=*|--interval=* ) opts[interval]=${1#*=} ;;
             -t=*|--task=* ) opts[task]=${1#*=} ;;
-            --help ) opts[mode]="usage" ;;
+            --help|-h ) opts[mode]="usage" ;;
             -v|--version ) archivist_echo "v$VERSION"; return ;;
             * )
                 archivist_error "Error: argument: \"$1\" is invalid!"

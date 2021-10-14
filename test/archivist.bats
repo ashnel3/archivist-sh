@@ -60,12 +60,13 @@
 }
 
 @test "Run should generate log & release" {
+    rm -rf release/test_*
     ./archivist add -t=test_files https://example.com
     run ./archivist run
 
     [ "$status" -eq 0 ]
     [ -f tasks/test_files/test_files.log ]
-    [ -f release/test_files/*.zip ]
+    [ -f release/test_files-*/*.tar.gz ]
 }
 
 @test "Set should configure task & output correctly" {
