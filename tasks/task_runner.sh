@@ -2,7 +2,8 @@
 
 set -e
 
-force="false"
+force=false
+mode="start"
 
 # Ensure working directory
 cd "$(dirname "$0")"
@@ -48,29 +49,38 @@ archivist_start_tasks() {
     archivist_echo "$task_count $((runtime_end-runtime_start))"
 }
 
-# Force flag
-if [[ "$1" == force ]]; then
-    force="true"
-    shift
-fi
+archivist_list_tasks() {
+    return 0
+}
 
-# Task runner main
-if [[ $# -gt 0 ]];then
-    args=()
-    for a in "$@"; do
-        args+=("../tasks/$a/")
+archivist_runner_parse_args() {
+    local tasks=()
+
+    while [ "$#" -ne 0 ]; do
+        case "$1" in
+            force ) force=true ;;
+            list ) mode=list ;;
+            * ) tasks+=("../tasks/$1/") ;;
+        esac
+        shift
     done
 
-    # TODO: This is ugly. Better way to quickly map args?
-
-    archivist_start_tasks "${args[@]}"
-else
-    all_tasks=($(echo ../tasks/*/))
-    if [[ ! "${all_tasks[@]}" == "../tasks/*/" ]];then
-        archivist_start_tasks "${all_tasks[@]}"
-    else
-        archivist_echo "0 0"
-        archivist_error "Error: No tasks!"
-        exit 1
+    # Get all tasks if there are none
+    if [[ "${#tasks[@]}" -lt 1 ]]; then
+        all_tasks=($(echo ../tasks/*/))
+        if [[ "${#all_tasks[@]}" -gt 0 ]] && [[ ! "${all_tasks[@]}" == "../tasks/*/" ]]; then
+            tasks=("${all_tasks[@]}")
+        else
+            archivist_echo "0 0"
+            archivist_error "Error: No tasks!"
+            exit 1
+        fi
     fi
-fi
+
+    case "$mode" in
+        start ) archivist_start_tasks "${tasks[@]}" ;;
+        list ) archivist_list_tasks "${tasks[@]}" ;;
+    esac
+}
+
+archivist_runner_parse_args "$@"
