@@ -10,6 +10,10 @@ cd "$(dirname "$0")"
 # Load common functions
 . task_common.sh
 
+# TODO: Handle task errors
+
+# TODO: Add verbose mode
+
 archivist_start_tasks() {
     local runtime_start="$(date +%s)"
     local task_count=0

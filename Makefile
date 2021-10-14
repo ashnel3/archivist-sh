@@ -1,7 +1,10 @@
-.PHONY: clean clean-logs clean-tasks test test-sync install uninstall
+.PHONY: clean clean-all clean-logs clean-tasks test test-sync install uninstall
 
 clean:
 	@rm -rf release
+
+clean-all:
+	@rm -rf release tasks/*/
 
 clean-tasks:
 	@rm -rf tasks/*/
