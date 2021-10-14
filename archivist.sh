@@ -14,7 +14,7 @@ description: archivist.sh - Backup & track websites over time.
     -x, --exclude  - Configure excluded paths
     -i, --interval - Configure task run interval in hours
     -r, --reject   - Configure rejected files
-    --help         - Display this message
+    --help, -h     - Display this message
     -v, --version  - Display version
 
 EOF
@@ -185,7 +185,7 @@ archivist_process_params() {
             -r=*|--reject=* ) opts[rejects]=${1#*=} ;;
             -i=*|--interval=* ) opts[interval]=${1#*=} ;;
             -t=*|--task=* ) opts[task]=${1#*=} ;;
-            --help ) opts[mode]="usage" ;;
+            --help|-h ) opts[mode]="usage" ;;
             -v|--version ) archivist_echo "v$VERSION"; return ;;
             * )
                 archivist_error "Error: argument: \"$1\" is invalid!"
