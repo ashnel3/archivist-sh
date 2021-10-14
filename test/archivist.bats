@@ -65,7 +65,7 @@
 
     [ "$status" -eq 0 ]
     [ -f tasks/test_files/test_files.log ]
-    [ -f release/test_files/*.zip ]
+    [ -f release/test_files-*/*.tar.gz ]
 }
 
 @test "Set should configure task & output correctly" {

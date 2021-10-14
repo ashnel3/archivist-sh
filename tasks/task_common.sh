@@ -55,10 +55,32 @@ archivist_diff() {
 
 archivist_package() {
     if [[ -d $2 ]]; then
-        (cd $2 && zip -D -X -q -r ../$2.zip .)
+        local package_entries=()
+        local loop_entries=()
+        local loop_hashes=()
 
-        local hash=($($1 $2.zip))
-        archivist_echo "$hash"
+        readarray -d $'\0' entries < <(find $2 -type f -print0)
+
+        for e in "${entries[@]}"; do
+            entry_size=$(wc -c <"$e")
+            if [[ "$e" =~ .+\.(exe|pkg|deb|jar|tar|rar|gz|tgz|7z)$ ]] || [[ "$entry_size" -gt 10000000 ]] || [[ -x "$e" ]]; then
+                entry_hash=($($1 "$e"))
+                loop_entries+=($e)
+                loop_hashes+=($entry_hash)
+
+                cp $e .
+            else
+                package_entries+=($e)
+            fi
+        done
+
+        if [[ "${#package_entries[@]}" -gt 0 ]]; then
+            tar -czf $2.tar.gz "${package_entries[@]}"
+            package_hash=($($1 $2.tar.gz))
+            loop_hashes+=($package_hash)
+        fi
+
+        archivist_echo "${loop_hashes[@]}"
     else
         archivist_error "Error: Nothing downloaded..."
         exit 1
@@ -66,10 +88,10 @@ archivist_package() {
 }
 
 archivist_release() {
-    local releasedir="../../release/$taskname"
+    local releasedir="../../release/$taskname-$timestamp"
 
     mkdir -p "$releasedir" 2>/dev/null \
-        && mv *.zip "$releasedir" 2>/dev/null
+        && mv *.{exe,pkg,dev,jar,rar,tar,gz,tgz,7z} "$releasedir" 2>/dev/null
 }
 
 after() {
@@ -83,5 +105,5 @@ before() {
 }
 
 cleanup() {
-    rm -rf $taskname-$timestamp.zip $taskname-$timestamp
+    rm -rf $taskname-$timestamp.tar.gz $taskname-$timestamp *.{exe,pkg,dev,jar,rar,tar,tgz,7z}
 }
