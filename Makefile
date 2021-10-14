@@ -10,7 +10,7 @@ clean-logs:
 	@rm -rf tasks/*/*.log
 
 test:
-	@rm -rf tasks/test_*
+	@rm -rf tasks/test_* releases/test_*
 	@bats --tap test
 	@rm -rf tasks/test_* releases/test_*
 

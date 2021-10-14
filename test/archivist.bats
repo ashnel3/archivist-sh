@@ -60,6 +60,7 @@
 }
 
 @test "Run should generate log & release" {
+    rm -rf release/test_*
     ./archivist add -t=test_files https://example.com
     run ./archivist run
 
