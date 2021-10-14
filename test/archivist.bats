@@ -9,14 +9,14 @@
     run ./archivist
 
     [ "$status" -eq 0 ]
-    [ "${lines[0]}" == "usage: archivist [add|set|remove|run] [options]" ]
+    [ "${lines[0]}" == "usage: archivist [add|list|set|remove|run] [options]" ]
 }
 
 @test "Arguments shouldn't eat eachother" {
     run ./archivist -t= --help
 
     [ "$status" -eq 0 ]
-    [ "${lines[0]}" == "usage: archivist [add|set|remove|run] [options]" ]
+    [ "${lines[0]}" == "usage: archivist [add|list|set|remove|run] [options]" ]
 }
 
 @test "Add should generate task & output correctly" {

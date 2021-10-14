@@ -2,7 +2,7 @@
 
 VERSION="0.3.0a"
 USAGE="$(cat << EOF
-usage: archivist [add|set|remove|run] [options]
+usage: archivist [add|list|set|remove|run] [options]
 description: archivist.sh - Backup & track websites over time.
 
     example: add --task=my_website https://my_website.com
@@ -158,6 +158,11 @@ archivist_config_task() {
     archivist_echo "task_opts[url]=\"${opts[url]}\""           >> "$config"
 }
 
+archivist_list_tasks() {
+    readarray -d , -t tasks <<< "${opts[task]}"
+    bash -c "./tasks/task_runner.sh list $(archivist_echo ${tasks[@]})"
+}
+
 # TODO: Is this compatible?
 archivist_run_tasks() {
     readarray -d , -t tasks <<< "${opts[task]}"
@@ -179,6 +184,10 @@ archivist_run() {
                 archivist_error "Error: failed to contact url: \"${opts[url]}\"!"
                 exit 1
             fi
+        ;;
+
+        list )
+            archivist_list_tasks
         ;;
 
         # TODO: Add list sub-command - display: next run time, n# changes, n# days tracked
@@ -224,6 +233,7 @@ archivist_process_params() {
     while [ "$#" -ne 0 ]; do
         case "$1" in
             add ) opts[mode]="add" ;;
+            list ) opts[mode]="list" ;;
             remove ) opts[mode]="remove" ;;
             run ) opts[mode]="run" ;;
             set ) opts[mode]="set" ;;

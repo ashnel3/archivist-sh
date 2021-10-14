@@ -38,7 +38,7 @@ archivist_start_tasks() {
 
         if [[ "${task_opts[enabled]}" == "true" ]]; then
             if [[ "$force" == "true" ]] || [[ "$seconds_since" -gt "$seconds_interval" ]]; then
-                bash -c "$1task.sh $task_count $#"
+                bash -c "$1task.sh $task_count $#" &
                 ((task_count=task_count+1))
             fi
         fi
@@ -50,7 +50,29 @@ archivist_start_tasks() {
 }
 
 archivist_list_tasks() {
-    return 0
+    while [ "$#" -ne 0 ]; do
+        # TODO: This is a hack, any way to check for files for a certain ext?
+        if [[ -d $1 ]] && [[ -f $1.config ]] && [[ -f "$1$(basename $1).log" ]]; then
+            # Load task opts
+            . $1.config
+
+            local run_time="$(date +%s)"
+            local logpath="$1$taskname.log"
+            local loglines="$(wc -l < $logpath)"
+            local logged_check=($(archivist_parse_log $logpath check))
+            local logged_time="${logged_check[1]}"
+
+            local hours_interval="${task_opts[interval]}"
+            local seconds_interval=$((hours_interval * 3600))
+            local seconds_since=$((run_time-logged_time))
+            local seconds_until=$((seconds_interval-seconds_since))
+
+            if [[ "${task_opts[enabled]}" == "true" ]]; then
+                archivist_echo "[$taskname]: Scheduled to run in ~ $((seconds_until/3600)) hour(s) log-file: $loglines line(s)"
+            fi
+        fi
+        shift
+    done
 }
 
 archivist_runner_parse_args() {
