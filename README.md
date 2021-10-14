@@ -43,7 +43,7 @@ Targeting: Bash 3.2.57+
   ```bash
   git clone https://github.com/bats-core/bats-core.git
   cd bats-core
-  sudo ./install.sh /usr/local
+  ./install.sh /usr/local
   ```
 
 - Installation on Bsd w/ pkg: `pkg install gmake wget bats-core parallel`
