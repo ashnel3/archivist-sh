@@ -30,6 +30,9 @@ opts[interval]=""
 opts[url]=""
 opts[task]=""
 
+# Ensure working directory
+cd "$(dirname "$0")"
+
 archivist_echo() {
     command printf %s\\n "$*" 2>/dev/null
 }
