@@ -110,7 +110,7 @@ archivist_add_task() {
     archivist_echo 'fi'                                                     >> "$taskpath"
 
     archivist_config_task
-    chmod +x "$taskpath"
+    chmod +x "$taskpath" "$taskdir/.config"
 
     archivist_echo "Added task - \"$taskname\"!"
 }
@@ -153,7 +153,6 @@ archivist_config_task() {
     archivist_echo "task_opts[excludes]=\"${opts[excludes]}\"" >> "$config"
     archivist_echo "task_opts[interval]=\"${opts[interval]}\"" >> "$config"
     archivist_echo "task_opts[url]=\"${opts[url]}\""           >> "$config"
-    chmod +x "$config"
 }
 
 # TODO: Is this compatible?
