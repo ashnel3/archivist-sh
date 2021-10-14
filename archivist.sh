@@ -163,38 +163,7 @@ archivist_run_tasks() {
     archivist_echo "Done! ran ${run_stats[0]} task(s) in ${run_stats[1]}(s)"
 }
 
-archivist_process_params() {
-    if ! archivist_has "wget"; then
-        archivist_echo "Failed to find wget!"
-        exit 1
-    fi
-
-    # Parse arguments
-    while [ "$#" -ne 0 ]; do
-        case "$1" in
-            add ) opts[mode]="add" ;;
-            remove ) opts[mode]="remove" ;;
-            run ) opts[mode]="run" ;;
-            set ) opts[mode]="set" ;;
-            http*://*.* ) opts[url]="$1" ;;
-            -a=*|--accept=* ) opts[accepts]=${1#*=} ;;
-            -e|--enable ) opts[enabled]="true" ;;
-            -d|--disable ) opts[enabled]="false" ;;
-            -x=*|--exclude=* ) opts[excludes]=${1#*=} ;;
-            -r=*|--reject=* ) opts[rejects]=${1#*=} ;;
-            -i=*|--interval=* ) opts[interval]=${1#*=} ;;
-            -t=*|--task=* ) opts[task]=${1#*=} ;;
-            --help|-h ) opts[mode]="usage" ;;
-            -v|--version ) archivist_echo "v$VERSION"; return ;;
-            * )
-                archivist_error "Error: argument: \"$1\" is invalid!"
-                exit 1
-            ;;
-        esac
-        shift
-    done
-
-    # Run with selections
+archivist_run() {
     case "${opts[mode]}" in
         add )
             if [[ -z "${opts[task]}" ]]; then
@@ -240,6 +209,39 @@ archivist_process_params() {
 
         run ) archivist_run_tasks ;;
     esac
+}
+
+archivist_process_params() {
+    if ! archivist_has "wget"; then
+        archivist_echo "Failed to find wget!"
+        exit 1
+    fi
+
+    # Parse arguments
+    while [ "$#" -ne 0 ]; do
+        case "$1" in
+            add ) opts[mode]="add" ;;
+            remove ) opts[mode]="remove" ;;
+            run ) opts[mode]="run" ;;
+            set ) opts[mode]="set" ;;
+            http*://*.* ) opts[url]="$1" ;;
+            -a=*|--accept=* ) opts[accepts]=${1#*=} ;;
+            -e|--enable ) opts[enabled]="true" ;;
+            -d|--disable ) opts[enabled]="false" ;;
+            -x=*|--exclude=* ) opts[excludes]=${1#*=} ;;
+            -r=*|--reject=* ) opts[rejects]=${1#*=} ;;
+            -i=*|--interval=* ) opts[interval]=${1#*=} ;;
+            -t=*|--task=* ) opts[task]=${1#*=} ;;
+            --help|-h ) opts[mode]="usage" ;;
+            -v|--version ) archivist_echo "v$VERSION"; return ;;
+            * )
+                archivist_error "Error: argument: \"$1\" is invalid!"
+                exit 1
+            ;;
+        esac
+        shift
+    done
+    archivist_run
 }
 
 archivist_process_params "$@"
