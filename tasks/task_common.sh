@@ -76,8 +76,8 @@ archivist_package() {
         done
 
         if [[ "${#package_entries[@]}" -gt 0 ]]; then
-            tar -czf $2.tar.gz "${package_entries[@]}"
-            package_hash=($($1 $2.tar.gz))
+            tar -czf release/$2.tar.gz "${package_entries[@]}"
+            package_hash=($($1 release/$2.tar.gz))
             loop_hashes+=($package_hash)
         fi
 
@@ -92,7 +92,7 @@ archivist_release() {
     local releasedir="../../release/$taskname-$timestamp"
 
     mkdir -p "$releasedir" 2>/dev/null \
-        && mv release/* *.{exe,pkg,dev,jar,rar,tar,gz,tgz,7z} "$releasedir" 2>/dev/null
+        && mv release/* "$releasedir" 2>/dev/null
 }
 
 after() {
@@ -106,5 +106,5 @@ before() {
 }
 
 cleanup() {
-    rm -rf release $taskname-$timestamp.tar.gz $taskname-$timestamp *.{exe,pkg,dev,jar,rar,tar,tgz,7z}
+    rm -rf release $taskname-$timestamp
 }
