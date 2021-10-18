@@ -14,7 +14,7 @@ clean-logs:
 
 test:
 	@rm -rf tasks/test_* releases/test_*
-	@bats --tap test
+	@bats --tap test || true
 	@rm -rf tasks/test_* releases/test_*
 
 install:
