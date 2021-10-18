@@ -2,8 +2,6 @@
 
 # TODO: Implement diffing
 
-# TODO: Run custom scripts after task
-
 archivist_echo() {
     command printf %s\\n "$*" 2>/dev/null
 }
@@ -11,8 +9,6 @@ archivist_echo() {
 archivist_error() {
     >&2 archivist_echo "$@"
 }
-
-# TODO: Can this cope w/ larger files?
 
 archivist_parse_log() {
     if [[ ! -f "$1" ]]; then

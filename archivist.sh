@@ -163,7 +163,6 @@ archivist_list_tasks() {
     bash -c "./tasks/task_runner.sh list $(archivist_echo ${tasks[@]})"
 }
 
-# TODO: Is this compatible?
 archivist_run_tasks() {
     readarray -d , -t tasks <<< "${opts[task]}"
 
@@ -186,11 +185,7 @@ archivist_run() {
             fi
         ;;
 
-        list )
-            archivist_list_tasks
-        ;;
-
-        # TODO: Add list sub-command - display: next run time, n# changes, n# days tracked
+        list ) archivist_list_tasks ;;
 
         remove )
             if [[ -z "${opts[task]}" ]]; then

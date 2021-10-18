@@ -51,7 +51,6 @@ archivist_start_tasks() {
 
 archivist_list_tasks() {
     while [ "$#" -ne 0 ]; do
-        # TODO: This is a hack, any way to check for files for a certain ext?
         if [[ -d $1 ]] && [[ -f $1.config ]]; then
             # Load task opts
             . $1.config
