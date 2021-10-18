@@ -24,8 +24,6 @@ Easily test your user-scripts, page types, or web-extensions.
 ## Requirements:
 Requirements: make, diff, wget, shasum, tar & bats-core optionally for testing
 
-Targeting: Bash 3.2.57+
-
 - Installation on Windows w/ chocolatey: `choco install git wget make`
 
   - Installing bats-core on Windows: <a href="https://bats-core.readthedocs.io/en/stable/installation.html#installing-bats-from-source-onto-windows-git-bash" rel="noopener" target="_blank">installation - bats-core</a> - *(optional)*
