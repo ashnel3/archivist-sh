@@ -2,7 +2,7 @@
 
 ![CI](https://github.com/ashnel3/archivist-sh/actions/workflows/main.yml/badge.svg)
 
-Shell website archivist! *- (v0.3.0a)*
+Shell website archivist! *- (v0.4.0a)*
 
 <br />
 
@@ -15,7 +15,6 @@ Easily test your user-scripts, page types, or web-extensions.
 - [x] Backup & tracking
 - [ ] Diffing & logging
 - [ ] Bash completion
-- [ ] Custom scripts
 - [ ] Installer & uninstaller
 - [ ] Docker
 - [ ] Dynamic file detection & automatic filtering?

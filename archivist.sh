@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-VERSION="0.3.0a"
+VERSION="0.4.0a"
 USAGE="$(cat << EOF
 usage: archivist [add|list|set|remove|run] [options]
 description: archivist.sh - Backup & track websites over time.
