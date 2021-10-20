@@ -2,7 +2,8 @@
 
 set -e
 
-force="false"
+force=false
+mode="start"
 
 # Ensure working directory
 cd "$(dirname "$0")"
@@ -37,7 +38,7 @@ archivist_start_tasks() {
 
         if [[ "${task_opts[enabled]}" == "true" ]]; then
             if [[ "$force" == "true" ]] || [[ "$seconds_since" -gt "$seconds_interval" ]]; then
-                bash -c "$1task.sh $task_count $#"
+                bash -c "$1task.sh $task_count $#" &
                 ((task_count=task_count+1))
             fi
         fi
@@ -48,29 +49,61 @@ archivist_start_tasks() {
     archivist_echo "$task_count $((runtime_end-runtime_start))"
 }
 
-# Force flag
-if [[ "$1" == force ]]; then
-    force="true"
-    shift
-fi
+archivist_list_tasks() {
+    while [ "$#" -ne 0 ]; do
+        if [[ -d $1 ]] && [[ -f $1.config ]]; then
+            # Load task opts
+            . $1.config
 
-# Task runner main
-if [[ $# -gt 0 ]];then
-    args=()
-    for a in "$@"; do
-        args+=("../tasks/$a/")
+            local logpath="$1$taskname.log"
+            local run_time="$(date +%s)"
+
+            if [[ "${task_opts[enabled]}" == "true" ]]; then
+                if [[ -f "$logpath" ]]; then
+                    local loglines="$(wc -l < $logpath)"
+                    local logged_check=($(archivist_parse_log $logpath check))
+                    local logged_time="${logged_check[1]}"
+                    local hours_interval="${task_opts[interval]}"
+                    local seconds_interval=$((hours_interval * 3600))
+                    local seconds_until=$((seconds_interval-(run_time-logged_time)))
+                    archivist_echo "[$taskname]: Scheduled to run in: ~ $((seconds_until/3600)) hour(s) log-file: $loglines line(s)"
+                else
+                    archivist_echo "[$taskname]: Scheduled to run: next job, log-file: n/a"
+                fi
+            fi
+        fi
+        shift
+    done
+}
+
+archivist_runner_parse_args() {
+    local tasks=()
+
+    while [ "$#" -ne 0 ]; do
+        case "$1" in
+            force ) force=true ;;
+            list ) mode=list ;;
+            * ) tasks+=("../tasks/$1/") ;;
+        esac
+        shift
     done
 
-    # TODO: This is ugly. Better way to quickly map args?
-
-    archivist_start_tasks "${args[@]}"
-else
-    all_tasks=($(echo ../tasks/*/))
-    if [[ ! "${all_tasks[@]}" == "../tasks/*/" ]];then
-        archivist_start_tasks "${all_tasks[@]}"
-    else
-        archivist_echo "0 0"
-        archivist_error "Error: No tasks!"
-        exit 1
+    # Get all tasks if there are none
+    if [[ "${#tasks[@]}" -lt 1 ]]; then
+        all_tasks=($(echo ../tasks/*/))
+        if [[ "${#all_tasks[@]}" -gt 0 ]] && [[ ! "${all_tasks[@]}" == "../tasks/*/" ]]; then
+            tasks=("${all_tasks[@]}")
+        else
+            archivist_echo "0 0"
+            archivist_error "Error: No tasks!"
+            exit 1
+        fi
     fi
-fi
+
+    case "$mode" in
+        start ) archivist_start_tasks "${tasks[@]}" ;;
+        list ) archivist_list_tasks "${tasks[@]}" ;;
+    esac
+}
+
+archivist_runner_parse_args "$@"

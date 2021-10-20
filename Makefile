@@ -13,9 +13,9 @@ clean-logs:
 	@rm -rf tasks/*/*.log
 
 test:
-	@rm -rf tasks/test_* releases/test_*
-	@bats --tap test
-	@rm -rf tasks/test_* releases/test_*
+	@rm -rf tasks/test_* release/test_*
+	@bats --tap test || true
+	@rm -rf tasks/test_* release/test_*
 
 install:
 	@./install.sh -y

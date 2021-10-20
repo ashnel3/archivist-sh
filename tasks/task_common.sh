@@ -2,8 +2,6 @@
 
 # TODO: Implement diffing
 
-# TODO: Run custom scripts after task
-
 archivist_echo() {
     command printf %s\\n "$*" 2>/dev/null
 }
@@ -11,8 +9,6 @@ archivist_echo() {
 archivist_error() {
     >&2 archivist_echo "$@"
 }
-
-# TODO: Can this cope w/ larger files?
 
 archivist_parse_log() {
     if [[ ! -f "$1" ]]; then
@@ -51,32 +47,31 @@ archivist_diff() {
     return 0
 }
 
-# TODO: Loop over files, package small ones & shasum them all
-
 archivist_package() {
     if [[ -d $2 ]]; then
         local package_entries=()
         local loop_entries=()
         local loop_hashes=()
 
-        readarray -d $'\0' entries < <(find $2 -type f -print0)
+        mkdir -p release
+        readarray -d $'\0' entries < <(cd $2 && find * -type f -print0)
 
         for e in "${entries[@]}"; do
-            entry_size=$(wc -c <"$e")
-            if [[ "$e" =~ .+\.(exe|pkg|deb|jar|tar|rar|gz|tgz|7z)$ ]] || [[ "$entry_size" -gt 10000000 ]] || [[ -x "$e" ]]; then
-                entry_hash=($($1 "$e"))
-                loop_entries+=($e)
+            local entry_path="$2/$e"
+            local entry_size=$(wc -c <"$entry_path")
+            if [[ "$entry_path" =~ .+\.(exe|pkg|deb|jar|tar|rar|gz|tgz|7z)$ ]] || [[ "$entry_size" -gt 10000000 ]] || [[ -x "$entry_path" ]]; then
+                local entry_hash=($($1 "$entry_path"))
+                loop_entries+=("release/$entry_path")
                 loop_hashes+=($entry_hash)
-
-                cp $e .
+                mv $entry_path release
             else
                 package_entries+=($e)
             fi
         done
 
         if [[ "${#package_entries[@]}" -gt 0 ]]; then
-            tar -czf $2.tar.gz "${package_entries[@]}"
-            package_hash=($($1 $2.tar.gz))
+            tar -C $2 -czf release/$2.tar.gz "${package_entries[@]}"
+            package_hash=($($1 release/$2.tar.gz))
             loop_hashes+=($package_hash)
         fi
 
@@ -91,7 +86,7 @@ archivist_release() {
     local releasedir="../../release/$taskname-$timestamp"
 
     mkdir -p "$releasedir" 2>/dev/null \
-        && mv *.{exe,pkg,dev,jar,rar,tar,gz,tgz,7z} "$releasedir" 2>/dev/null
+        && mv release/* "$releasedir" 2>/dev/null
 }
 
 after() {
@@ -105,5 +100,5 @@ before() {
 }
 
 cleanup() {
-    rm -rf $taskname-$timestamp.tar.gz $taskname-$timestamp *.{exe,pkg,dev,jar,rar,tar,tgz,7z}
+    rm -rf release $taskname-$timestamp
 }

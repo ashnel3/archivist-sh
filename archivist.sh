@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-VERSION="0.3.0a"
+VERSION="0.4.0a"
 USAGE="$(cat << EOF
-usage: archivist [add|set|remove|run] [options]
+usage: archivist [add|list|set|remove|run] [options]
 description: archivist.sh - Backup & track websites over time.
 
     example: add --task=my_website https://my_website.com
@@ -20,8 +20,9 @@ description: archivist.sh - Backup & track websites over time.
 EOF
 )"
 
+mode="usage"
+
 declare -A opts
-opts[mode]="usage"
 opts[enabled]=""
 opts[accepts]=""
 opts[rejects]=""
@@ -29,6 +30,9 @@ opts[excludes]=""
 opts[interval]=""
 opts[url]=""
 opts[task]=""
+
+# Ensure working directory
+cd "$(dirname "$0")"
 
 archivist_echo() {
     command printf %s\\n "$*" 2>/dev/null
@@ -124,7 +128,7 @@ archivist_remove_task() {
 
 archivist_merge_opts() {
     for i in "${!opts[@]}"; do
-        if [[ "${opts[$i]}" == "" ]] && [[ ! "${task_opts[$i]}" == "" ]]; then
+        if [[ -z "${opts[$i]}" ]] && [[ ! -z "${task_opts[$i]}" ]]; then
             opts[$i]="${task_opts[$i]}"
         fi
     done
@@ -155,7 +159,11 @@ archivist_config_task() {
     archivist_echo "task_opts[url]=\"${opts[url]}\""           >> "$config"
 }
 
-# TODO: Is this compatible?
+archivist_list_tasks() {
+    readarray -d , -t tasks <<< "${opts[task]}"
+    bash -c "./tasks/task_runner.sh list $(archivist_echo ${tasks[@]})"
+}
+
 archivist_run_tasks() {
     readarray -d , -t tasks <<< "${opts[task]}"
 
@@ -163,39 +171,8 @@ archivist_run_tasks() {
     archivist_echo "Done! ran ${run_stats[0]} task(s) in ${run_stats[1]}(s)"
 }
 
-archivist_process_params() {
-    if ! archivist_has "wget"; then
-        archivist_echo "Failed to find wget!"
-        exit 1
-    fi
-
-    # Parse arguments
-    while [ "$#" -ne 0 ]; do
-        case "$1" in
-            add ) opts[mode]="add" ;;
-            remove ) opts[mode]="remove" ;;
-            run ) opts[mode]="run" ;;
-            set ) opts[mode]="set" ;;
-            http*://*.* ) opts[url]="$1" ;;
-            -a=*|--accept=* ) opts[accepts]=${1#*=} ;;
-            -e|--enable ) opts[enabled]="true" ;;
-            -d|--disable ) opts[enabled]="false" ;;
-            -x=*|--exclude=* ) opts[excludes]=${1#*=} ;;
-            -r=*|--reject=* ) opts[rejects]=${1#*=} ;;
-            -i=*|--interval=* ) opts[interval]=${1#*=} ;;
-            -t=*|--task=* ) opts[task]=${1#*=} ;;
-            --help|-h ) opts[mode]="usage" ;;
-            -v|--version ) archivist_echo "v$VERSION"; return ;;
-            * )
-                archivist_error "Error: argument: \"$1\" is invalid!"
-                exit 1
-            ;;
-        esac
-        shift
-    done
-
-    # Run with selections
-    case "${opts[mode]}" in
+archivist_run() {
+    case "$mode" in
         add )
             if [[ -z "${opts[task]}" ]]; then
                 archivist_error "Error: task name must be specified!"
@@ -209,7 +186,7 @@ archivist_process_params() {
             fi
         ;;
 
-        # TODO: Add list sub-command - display: next run time, n# changes, n# days tracked
+        list ) archivist_list_tasks ;;
 
         remove )
             if [[ -z "${opts[task]}" ]]; then
@@ -240,6 +217,40 @@ archivist_process_params() {
 
         run ) archivist_run_tasks ;;
     esac
+}
+
+archivist_process_params() {
+    if ! archivist_has "wget"; then
+        archivist_echo "Failed to find wget!"
+        exit 1
+    fi
+
+    # Parse arguments
+    while [ "$#" -ne 0 ]; do
+        case "$1" in
+            add ) mode="add" ;;
+            list ) mode="list" ;;
+            remove ) mode="remove" ;;
+            run ) mode="run" ;;
+            set ) mode="set" ;;
+            http*://*.* ) opts[url]="$1" ;;
+            -a=*|--accept=* ) opts[accepts]=${1#*=} ;;
+            -e|--enable ) opts[enabled]="true" ;;
+            -d|--disable ) opts[enabled]="false" ;;
+            -x=*|--exclude=* ) opts[excludes]=${1#*=} ;;
+            -r=*|--reject=* ) opts[rejects]=${1#*=} ;;
+            -i=*|--interval=* ) opts[interval]=${1#*=} ;;
+            -t=*|--task=* ) opts[task]=${1#*=} ;;
+            --help|-h ) mode="usage" ;;
+            -v|--version ) archivist_echo "v$VERSION"; return ;;
+            * )
+                archivist_error "Error: argument: \"$1\" is invalid!"
+                exit 1
+            ;;
+        esac
+        shift
+    done
+    archivist_run
 }
 
 archivist_process_params "$@"

@@ -2,7 +2,7 @@
 
 ![CI](https://github.com/ashnel3/archivist-sh/actions/workflows/main.yml/badge.svg)
 
-Shell website archivist! *- (v0.3.0a)*
+Shell website archivist! *- (v0.4.0a)*
 
 <br />
 
@@ -15,7 +15,6 @@ Easily test your user-scripts, page types, or web-extensions.
 - [x] Backup & tracking
 - [ ] Diffing & logging
 - [ ] Bash completion
-- [ ] Custom scripts
 - [ ] Installer & uninstaller
 - [ ] Docker
 - [ ] Dynamic file detection & automatic filtering?
@@ -23,8 +22,6 @@ Easily test your user-scripts, page types, or web-extensions.
 
 ## Requirements:
 Requirements: make, diff, wget, shasum, tar & bats-core optionally for testing
-
-Targeting: Bash 3.2.57+
 
 - Installation on Windows w/ chocolatey: `choco install git wget make`
 
@@ -43,7 +40,7 @@ Targeting: Bash 3.2.57+
   ```bash
   git clone https://github.com/bats-core/bats-core.git
   cd bats-core
-  sudo ./install.sh /usr/local
+  ./install.sh /usr/local
   ```
 
 - Installation on Bsd w/ pkg: `pkg install gmake wget bats-core parallel`
