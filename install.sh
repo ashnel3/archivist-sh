@@ -35,16 +35,26 @@
         chmod +x "$1"
     }
 
-    # TODO: Install w/o git
     archivist_install_as_script() {
-        archivist_error "Error: installation without git isn't implemented"
-        exit 1
+        local release_url="https://github.com/ashnel3/archivist-sh/archive/refs/heads/main.tar.gz"
+        local release_hash="3923d1a6fd550ae662ea9ea66eab224e2531bbb6"
+
+        wget -q -c "$release_url"
+
+        local download_hash=($(shasum *.tar.gz))
+        [[ "$download_hash" == "$release_hash" ]] \
+            && tar -xzf *.tar.gz \
+            && archivist_echo "  + Writting script to: \"$1/archivist\"" \
+            && archivist_write_entrypoint "$1/archivist" \
+            && archivist_echo "  + Scheduling hourly task" \
+            && archivist_schedule_task \
+            || archivist_error "  + Error: release failed checksum!" && exit 1
     }
 
     archivist_install_as_repo() {
         if [[ ! -d "$1/.git" ]]; then
             git clone https://github.com/ashnel3/archivist-sh.git "$1" \
-                && archivist_echo "  + Writting script to: $2/archivist" \
+                && archivist_echo "  + Writting script to: \"$2/archivist\"" \
                 && archivist_write_entrypoint "$2/archivist" \
                 && archivist_echo "  + Scheduling hourly task" \
                 && archivist_schedule_task
@@ -59,7 +69,7 @@
             archivist_install_as_repo "$archivist_dir" "$1"
         else
             mkdir -p "$archivist_dir" \
-                && archivist_install_as_script "$archivist_dir" "$1"
+                && (cd "$archivist_dir" && archivist_install_as_script "$1")
         fi
     }
 
