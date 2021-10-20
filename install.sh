@@ -14,7 +14,7 @@
     }
 
     # TODO: Updating
-    # TODO: Swap script-install to git-install if git become available
+    # TODO: Swap script-install to git-install if git becomes available
     archivist_update() {
         return 0
     }
@@ -24,7 +24,7 @@
             archivist_error "Error: Failed to find cron!"
             exit 1
         fi
-        (crontab -l 2>/dev/null; archivist_echo "0 * * * * archivist run") | crontab -
+        (crontab -l 2>/dev/null; archivist_echo "0 * * * * ~/.archivist/tasks/task_runner.sh") | crontab -
     }
 
     archivist_write_entrypoint() {
