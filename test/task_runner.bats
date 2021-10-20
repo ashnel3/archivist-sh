@@ -18,6 +18,14 @@
     [ "${stats_arr[0]}" -eq 2 ]
 }
 
+@test "Task runner should list tasks" {
+    run ./archivist list
+
+    echo "${lines[0]}" >> debug.txt
+
+    [ "${lines[0]}" == "[test_m1]: Scheduled to run in: ~ 24 hour(s) log-file: 2 line(s)" ]
+}
+
 @test "Task runner should run tasks & return stats array" {
     ./archivist add -t=test_1 https://example.com > /dev/null
     run ./tasks/task_runner.sh force
