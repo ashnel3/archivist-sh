@@ -20,8 +20,9 @@ description: archivist.sh - Backup & track websites over time.
 EOF
 )"
 
+mode="usage"
+
 declare -A opts
-opts[mode]="usage"
 opts[enabled]=""
 opts[accepts]=""
 opts[rejects]=""
@@ -127,7 +128,7 @@ archivist_remove_task() {
 
 archivist_merge_opts() {
     for i in "${!opts[@]}"; do
-        if [[ "${opts[$i]}" == "" ]] && [[ ! "${task_opts[$i]}" == "" ]]; then
+        if [[ -z "${opts[$i]}" ]] && [[ ! -z "${task_opts[$i]}" ]]; then
             opts[$i]="${task_opts[$i]}"
         fi
     done
@@ -171,7 +172,7 @@ archivist_run_tasks() {
 }
 
 archivist_run() {
-    case "${opts[mode]}" in
+    case "$mode" in
         add )
             if [[ -z "${opts[task]}" ]]; then
                 archivist_error "Error: task name must be specified!"
@@ -227,11 +228,11 @@ archivist_process_params() {
     # Parse arguments
     while [ "$#" -ne 0 ]; do
         case "$1" in
-            add ) opts[mode]="add" ;;
-            list ) opts[mode]="list" ;;
-            remove ) opts[mode]="remove" ;;
-            run ) opts[mode]="run" ;;
-            set ) opts[mode]="set" ;;
+            add ) mode="add" ;;
+            list ) mode="list" ;;
+            remove ) mode="remove" ;;
+            run ) mode="run" ;;
+            set ) mode="set" ;;
             http*://*.* ) opts[url]="$1" ;;
             -a=*|--accept=* ) opts[accepts]=${1#*=} ;;
             -e|--enable ) opts[enabled]="true" ;;
@@ -240,7 +241,7 @@ archivist_process_params() {
             -r=*|--reject=* ) opts[rejects]=${1#*=} ;;
             -i=*|--interval=* ) opts[interval]=${1#*=} ;;
             -t=*|--task=* ) opts[task]=${1#*=} ;;
-            --help|-h ) opts[mode]="usage" ;;
+            --help|-h ) mode="usage" ;;
             -v|--version ) archivist_echo "v$VERSION"; return ;;
             * )
                 archivist_error "Error: argument: \"$1\" is invalid!"
