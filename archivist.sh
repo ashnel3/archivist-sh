@@ -119,11 +119,26 @@ archivist_add_task() {
     archivist_echo "Added task - \"$taskname\"!"
 }
 
-archivist_remove_task() {
-    if [[ -d tasks/$1 ]]; then
-        rm -rf tasks/$1
-        echo "Removed task - \"$1\""
-    fi
+archivist_remove_tasks() {
+    IFS=',' read -ra tasks <<< "${opts[task]}"
+
+    [[ "${tasks[@]}" == "*" ]] \
+        && rm -rf ./tasks/*/ \
+        && archivist_echo "Removed all tasks!" \
+        && return 0
+
+    for t in "${!tasks[@]}"; do
+        local taskname="${tasks[t]}"
+        if [[ ! -d "tasks/$taskname" ]]; then
+            archivist_error "Error: task $(archivist_echo \"$taskname\") doesn't exist!"
+            unset tasks[t]
+        fi
+    done
+
+    for t in "${tasks[@]}"; do
+        rm -rf tasks/$t
+        archivist_echo "Removed task - \"$t\""
+    done
 }
 
 archivist_merge_opts() {
@@ -193,7 +208,7 @@ archivist_run() {
                 archivist_error "Error: task name must be specified!"
                 exit 1
             fi
-            archivist_remove_task "${opts[task]}"
+            archivist_remove_tasks "${opts[task]}"
         ;;
 
         # TODO: Set multiple commands (a -t=task1,task2 -d) + check before load
