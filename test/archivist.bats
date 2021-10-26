@@ -36,6 +36,12 @@
     [ "$(printf ${clines[6]})" == "task_opts[accepts]=\"html,php\"" ]
 }
 
+@test "Add should fail if given multiple tasks" {
+    run ./archivist add -t=test_m1,test_m2 https://example.com
+
+    [ "$status" -eq 1 ]
+}
+
 @test "Add should fail if URL doesn't exist" {
     run ./archivist add -t=test_bad_url https://exampleeeee.coms
 
@@ -90,6 +96,12 @@
 
 @test "Set w/o options should fail" {
     run ./archivist set -t=test_run
+
+    [ "$status" -eq 1 ]
+}
+
+@test "Set should fail if given multiple tasks" {
+    run ./archivist set -t=test_config,test_disable -i=12
 
     [ "$status" -eq 1 ]
 }
