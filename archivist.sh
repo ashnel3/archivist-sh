@@ -64,12 +64,17 @@ archivist_add_task() {
     local taskdir="tasks/$taskname"
     local taskpath="$taskdir/task.sh"
 
-    mkdir -p "$taskdir"
+    if [[ "$taskname" =~ "," ]]; then
+        archivist_error "Error: add cannot create multiple tasks!"
+        exit 1
+    fi
 
     if [[ -f "$taskpath" ]]; then
         archivist_error "Error: found task - \"$taskname\"!"
         exit 1
     fi
+
+    mkdir -p "$taskdir"
 
     archivist_echo '#!/usr/bin/env bash'                                    >> "$taskpath"
     archivist_echo ''                                                       >> "$taskpath"
@@ -220,6 +225,11 @@ archivist_run() {
             fi
             if [[ -z "${opts[enabled]}" ]] && [[ -z "${opts[interval]}" ]] && [[ -z "${opts[accepts]}" ]] && [[ -z "${opts[rejects]}" ]] && [[ -z "${opts[excludes]}" ]]; then
                 archivist_error "Error: task options must be specified!"
+                exit 1
+            fi
+
+            if [[ "$taskname" =~ "," ]]; then
+                archivist_error "Error: set cannot configure multiple tasks!"
                 exit 1
             fi
 
